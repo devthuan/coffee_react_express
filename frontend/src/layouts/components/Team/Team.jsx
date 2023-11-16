@@ -48,7 +48,7 @@ const Team = () => {
           src={Rectangle1}
           alt=""
         />
-        <h1 className={cx("title")}>và chúng tôi</h1>
+        <h1 id="team" className={cx("title")}>và chúng tôi</h1>
         <div className={cx("group__item")}>
           {ListTeam.map((item, index) => {
             return (

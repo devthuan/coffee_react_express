@@ -1,7 +1,7 @@
 import classNames from "classnames/bind";
 import styles from "./MenuCake.module.scss";
 import { ToastContainer, toast } from "react-toastify";
-import Cake1 from "../../../assets/images/cake-1.png";
+
 import HearIcon from "../../../assets/images/icon-hear.svg";
 import Button from "../../../components/Button/Button";
 import { useDispatch, useSelector } from "react-redux";

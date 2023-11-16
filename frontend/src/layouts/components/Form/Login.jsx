@@ -11,6 +11,7 @@ import { ToastContainer, toast } from "react-toastify";
 import { setItemWithExpiration } from "../../../services/LocalStorage";
 import axios from "axios";
 import { addToken } from "../../../redux/features/login/tokenSlice";
+import { login } from "../../../redux/features/user/authSlice";
 import { useDispatch } from "react-redux";
 
 const cx = classNames.bind(styles);
@@ -63,6 +64,7 @@ const Login = () => {
           setItemWithExpiration("token", [token, permission], 1);
           localStorage.setItem("phone_number", JSON.stringify(inputValues[0]));
           dispatch(addToken(token));
+          dispatch(login(permission));
           setTimeout(() => {
             navigate("/");
           }, 800);

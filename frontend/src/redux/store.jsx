@@ -5,6 +5,7 @@ import orderStatisticSlice from "./features/order/orderStatisticSlice";
 import userSlice from "./features/user/userSlice";
 import productSlice from "./features/product/productSlice";
 import tokenSlice from "./features/login/tokenSlice";
+import authSlice from "./features/user/authSlice";
 
 export const store = configureStore({
   reducer: {
@@ -14,5 +15,6 @@ export const store = configureStore({
     user: userSlice,
     orderStatistic: orderStatisticSlice,
     token: tokenSlice,
+    auth: authSlice,
   },
 });

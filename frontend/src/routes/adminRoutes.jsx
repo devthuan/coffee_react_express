@@ -1,19 +1,12 @@
-import React, { useEffect } from "react";
+
 import { Navigate } from "react-router-dom";
-import { useDispatch, useSelector } from "react-redux";
-import { getTokenFromLocalStorage } from "../validations/validations";
+import { useSelector } from "react-redux";
 
 const AdminRoute = (props) => {
-  const dispatch = useDispatch();
-  const dataToken = useSelector((state) => state.token.data);
-  const token = localStorage.getItem("token") || dataToken;
-  const permission = token.length > 0 ? JSON.parse(token).value[1] : false;
+  const checkLogin = useSelector((state) => state.auth.isLoggedIn);
+  const permission = useSelector((state) => state.auth.user);
 
-  useEffect(() => {
-    dispatch(getTokenFromLocalStorage());
-  }, [dispatch]);
-
-  if (token.length === 0) {
+  if (!checkLogin) {
     alert("You need login !!!");
     return <Navigate to="/" />;
   } else if (permission !== "true") {

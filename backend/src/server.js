@@ -30,7 +30,7 @@ app.use(
 app.use(helmet());
 // record logs
 app.use(morgan("combined"));
-// init routes
+// init routesxcnm 
 app.use("/v1/", initRoute);
 
 app.listen(port, () => {

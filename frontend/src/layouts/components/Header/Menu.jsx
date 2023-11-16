@@ -4,6 +4,8 @@ import IconSearch from "../../../assets/images/icon-search.png";
 import Logo from "../../../assets/images/logo.png";
 import Cart from "../../../assets/images/gio-hang.png";
 import Avatar from "../../../assets/images/avatar-crycle.jpg";
+import { ToastContainer, toast } from "react-toastify";
+
 import { useState } from "react";
 import { NavLink, useLocation } from "react-router-dom";
 import { useSelector } from "react-redux";
@@ -13,10 +15,11 @@ import { faRightToBracket } from "@fortawesome/free-solid-svg-icons";
 const cx = classNames.bind(styles);
 
 const Menu = () => {
+  const checkLogin = useSelector((state) => state.auth.isLoggedIn);
+  const permission = useSelector((state) => state.auth.user);
   const location = useLocation();
   const cartData = useSelector((state) => state.cart.data).length || 0;
   const [isHovered, setIsHovered] = useState(false);
-  const checkLogin = localStorage.getItem("token");
   const handleMouseEnter = () => {
     setIsHovered(true);
   };
@@ -29,6 +32,10 @@ const Menu = () => {
     localStorage.removeItem("phone_number");
     localStorage.removeItem("token");
     window.location.href = "/"; // Replace "/login" with the actual URL
+  };
+
+  const handleOnclickCart = () => {
+    toast.warning("You need to log in before using the service !");
   };
 
   return (
@@ -58,19 +65,26 @@ const Menu = () => {
           </a>
         </li>
         <li>
-          <NavLink to="/dashboard" className={cx("menu-item")}>
+          <a href="#team" className={cx("menu-item")}>
             Về Chúng Tôi
-          </NavLink>
-          {/* <a href="#introduce" className={cx("menu-item")}>
-            Về Chúng Tôi
-          </a> */}
+          </a>
         </li>
-        <NavLink to="/cart">
-          <li className={cx("menu-item", "cart")}>
-            <img width={35} src={Cart} alt="" />
-            <p className={cx("amount")}>{cartData ? cartData : 0} </p>
-          </li>
-        </NavLink>
+        {checkLogin && checkLogin === true ? (
+          <NavLink to="/cart">
+            <li className={cx("menu-item", "cart")}>
+              <img width={35} src={Cart} alt="" />
+              <p className={cx("amount")}>{cartData ? cartData : 0} </p>
+            </li>
+          </NavLink>
+        ) : (
+          <NavLink onClick={() => handleOnclickCart()}>
+            <li className={cx("menu-item", "cart")}>
+              <img width={35} src={Cart} alt="" />
+              <p className={cx("amount")}>{cartData ? cartData : 0} </p>
+            </li>
+          </NavLink>
+        )}
+
         <li
           onMouseEnter={handleMouseEnter}
           onMouseLeave={handleMouseLeave}
@@ -94,6 +108,7 @@ const Menu = () => {
                       Trang Chủ
                     </NavLink>
                   </li>
+
                   <li>
                     <NavLink
                       to="/order"
@@ -106,7 +121,13 @@ const Menu = () => {
                   </li>
                   <li className={cx("item")}>Voucher</li>
                   <li className={cx("item")}>lịch sử</li>
-                  <li className={cx("item")}>cài đặt</li>
+                  {permission && permission === "true" ? (
+                    <NavLink to="/dashboard">
+                      <li className={cx("item")}>Dashboard</li>
+                    </NavLink>
+                  ) : (
+                    <li className={cx("item")}>cài đặt</li>
+                  )}
                   <li onClick={handleLogOut} className={cx("item")}>
                     đăng xuất
                   </li>

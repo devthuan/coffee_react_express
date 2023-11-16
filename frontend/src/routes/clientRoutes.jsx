@@ -1,18 +1,10 @@
-import React, { useEffect } from "react";
-import { Route, Navigate } from "react-router-dom";
-import { useDispatch, useSelector } from "react-redux";
-import { getTokenFromLocalStorage } from "../validations/validations";
+import { Navigate } from "react-router-dom";
+import { useSelector } from "react-redux";
 
 const ClientRoutes = (props) => {
-  const dispatch = useDispatch();
-  const dataToken = useSelector((state) => state.token.data);
-  const token = localStorage.getItem("token") || dataToken;
+  const checkLogin = useSelector((state) => state.auth.isLoggedIn);
 
-  useEffect(() => {
-    dispatch(getTokenFromLocalStorage());
-  }, [dispatch]);
-
-  if (token.length === 0) {
+  if (!checkLogin) {
     alert("You need Login !");
     return <Navigate to="/" />;
   } else {
