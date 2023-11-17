@@ -7,13 +7,17 @@ import { format, isValid } from "date-fns";
 import Title from "../../components/Title/Title";
 import Button from "../../components/Button/Button";
 import Pagination from "../../components/Pagination/Pagination";
+import { useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
-import {  useMemo, useState } from "react";
+import { GetOrdersAPI, GetOrdersDetailAPI } from "../../services/UseServices";
+import { addOrderStatistic } from "../../redux/features/order/orderStatisticSlice";
+import { useMemo, useState } from "react";
 
 const cx = classNames.bind(styles);
 const cxDashboard = classNames.bind(styleDashboard);
 
 const OrderStatistics = () => {
+  const dispatch = useDispatch();
   const dataOrder = useSelector((state) => state.orderStatistic.data);
   const dataOrderSuccessful = useSelector(
     (state) => state.orderStatistic.success
@@ -23,10 +27,8 @@ const OrderStatistics = () => {
     (state) => state.orderStatistic.processing
   );
   const memoizedOrderData = useMemo(() => dataOrder, [dataOrder]);
-
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
-
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
   const currentItems = dataOrder.slice(indexOfFirstItem, indexOfLastItem);
@@ -35,42 +37,65 @@ const OrderStatistics = () => {
     setCurrentPage(newPage);
   };
 
-  // useEffect(() => {
-  //   const fetchAPI = async () => {
-  //     try {
-  //       const res = await GetOrdersAPI();
-  //       if (res && res.status === 200 && res.data) {
-  //         const data = res.data.data;
-  //         data.forEach(async (item) => {
-  //           const order_id = item.id;
-  //           const orderDetail = await GetOrdersDetailAPI(order_id);
-  //           const itemOrderDetail = orderDetail.data.data;
-  //           if (orderDetail && orderDetail.data) {
-  //             dispatch(
-  //               addOrderStatistic({
-  //                 id: item.id,
-  //                 product: itemOrderDetail,
-  //                 full_name: item.full_name,
-  //                 phone_number: item.phone_number,
-  //                 delivery_address: item.delivery_address,
-  //                 total_payment: item.total_payment,
-  //                 order_date: item.order_date,
-  //                 payment_methods: item.payment_methods,
-  //                 order_status: item.order_status,
-  //               })
-  //             );
-  //           }
-  //         });
-  //       }
-  //     } catch (error) {
-  //       console.log(error);
-  //     }
-  //   };
+  useEffect(() => {
+    console.log("Effect is running...");
+    const fetchAPI = async () => {
+      try {
+        const res = await GetOrdersAPI();
+        if (res && res.status === 200 && res.data) {
+          const data = res.data.data;
+          const totalData = res.data.total;
+          let success = 0,
+            failed = 0,
+            processing = 0;
+          let list_data = [];
+          let totalSales = 0;
+          for (const item of data) {
+            if (item.order_status === "Successful") {
+              success += 1;
+              totalSales += parseFloat(item.total_payment);
+            } else if (item.order_status === "Failed") {
+              failed += 1;
+            } else if (item.order_status === "Processing") {
+              processing += 1;
+            }
 
-  //   if (!memoizedOrderData.length) {
-  //     fetchAPI();
-  //   }
-  // }, [dispatch, memoizedOrderData]);
+            const order_id = item.id;
+            const orderDetail = await GetOrdersDetailAPI(order_id);
+            const itemOrderDetail = orderDetail.data.data;
+            if (orderDetail && orderDetail.data) {
+              list_data.push({
+                id: item.id,
+                product: itemOrderDetail,
+                full_name: item.full_name,
+                phone_number: item.phone_number,
+                delivery_address: item.delivery_address,
+                total_payment: item.total_payment,
+                order_date: item.order_date,
+                payment_methods: item.payment_methods,
+                order_status: item.order_status,
+              });
+            }
+          }
+          dispatch(
+            addOrderStatistic({
+              data: list_data,
+              totalData,
+              totalSales,
+              success,
+              failed,
+              processing,
+            })
+          );
+        }
+      } catch (error) {
+        console.error(error);
+      }
+    };
+    if (memoizedOrderData.length === 0) {
+      fetchAPI();
+    }
+  }, [dispatch, memoizedOrderData]);
 
   return (
     <div className={cx("wrapper")}>
@@ -85,10 +110,7 @@ const OrderStatistics = () => {
               />
             </div>
             <div className={cxDashboard("box__text")}>
-              <Title
-                className={cxDashboard("title")}
-                text="Đơn hàng thành công"
-              />
+              <Title className={cxDashboard("title")} text=" thành công" />
               <p className={cxDashboard("number")}>{dataOrderSuccessful}</p>
             </div>
           </div>
@@ -100,10 +122,7 @@ const OrderStatistics = () => {
               />
             </div>
             <div className={cxDashboard("box__text")}>
-              <Title
-                className={cxDashboard("title")}
-                text="Đơn hàng đang chờ"
-              />
+              <Title className={cxDashboard("title")} text=" đang chờ" />
               <p className={cxDashboard("number")}>{dataOrderProcessing}</p>
             </div>
           </div>
@@ -115,7 +134,7 @@ const OrderStatistics = () => {
               />
             </div>
             <div className={cxDashboard("box__text")}>
-              <Title className={cxDashboard("title")} text="Đơn hàng bị huỷ" />
+              <Title className={cxDashboard("title")} text=" bị huỷ" />
               <p className={cxDashboard("number")}>{dataOrderFailed}</p>
             </div>
           </div>

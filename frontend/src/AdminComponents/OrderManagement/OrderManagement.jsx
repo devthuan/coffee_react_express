@@ -12,7 +12,7 @@ import {
 } from "../../redux/features/order/orderSlice";
 import { ToastContainer, toast } from "react-toastify";
 
-import { setStatusOrderStatistic } from "../../redux/features/order/orderStatisticSlice";
+import { setStatusOrderStatistic, updateQuantityStatusOrder } from "../../redux/features/order/orderStatisticSlice";
 import {
   GetOrdersAPI,
   GetOrdersDetailAPI,
@@ -58,6 +58,8 @@ const OrderManagement = () => {
       })
     );
     dispatch(removeItemOrder(id));
+    dispatch(updateQuantityStatusOrder("Successful"));
+
   };
 
   const handleClickCancel = async (id) => {
@@ -76,6 +78,7 @@ const OrderManagement = () => {
       })
     );
     dispatch(removeItemOrder(id));
+    dispatch(updateQuantityStatusOrder("Failed"));
   };
 
   const handlePageChange = (newPage) => {
@@ -112,7 +115,7 @@ const OrderManagement = () => {
       }
     };
 
-    if (!menoizedDataOrder.length) {
+    if (menoizedDataOrder.length === 0) {
       fetchAPI();
     }
   }, [dispatch, menoizedDataOrder]);

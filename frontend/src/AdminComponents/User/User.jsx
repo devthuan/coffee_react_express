@@ -8,7 +8,7 @@ import Button from "../../components/Button/Button";
 import { useSelector, useDispatch } from "react-redux";
 import {
   removeUser,
-  addUser,
+  initDataUser,
   setStatusUser,
 } from "../../redux/features/user/userSlice";
 import { useEffect, useMemo, useState } from "react";
@@ -67,7 +67,8 @@ const User = () => {
         const res = await GetUser(1);
         if (res && res.status === 200 && res.data.data) {
           const userData = res.data.data;
-          userData.map((item) => dispatch(addUser(item)));
+
+          dispatch(initDataUser(userData))
         }
       } catch (error) {
         console.error("Có lỗi xảy ra:", error);

@@ -15,7 +15,8 @@ import { useEffect, useMemo, useState } from "react";
 import { GetUser } from "../../services/UseServices";
 import { useSelector, useDispatch } from "react-redux";
 import { addTotalData } from "../../redux/features/user/userSlice";
-
+import { GetOrdersAPI, GetOrdersDetailAPI } from "../../services/UseServices";
+import { addOrderStatistic } from "../../redux/features/order/orderStatisticSlice";
 const cx = classNames.bind(styles);
 
 const Dashboard = () => {
@@ -30,6 +31,66 @@ const Dashboard = () => {
   const totalSales = useSelector((state) => state.orderStatistic.totalSales);
 
   const memoizedUserDataUser = useMemo(() => totalUser, [totalUser]);
+  const memoizedUserDataOrder = useMemo(() => totalOrder, [totalOrder]);
+
+  useEffect(() => {
+    const fetchAPI = async () => {
+      try {
+        const res = await GetOrdersAPI();
+        if (res && res.status === 200 && res.data) {
+          const data = res.data.data;
+          const totalData = res.data.total;
+          let success = 0,
+            failed = 0,
+            processing = 0;
+          let list_data = [];
+          let totalSales = 0;
+          for (const item of data) {
+            if (item.order_status === "Successful") {
+              success += 1;
+              totalSales += parseFloat(item.total_payment);
+            } else if (item.order_status === "Failed") {
+              failed += 1;
+            } else if (item.order_status === "Processing") {
+              processing += 1;
+            }
+
+            const order_id = item.id;
+            const orderDetail = await GetOrdersDetailAPI(order_id);
+            const itemOrderDetail = orderDetail.data.data;
+            if (orderDetail && orderDetail.data) {
+              list_data.push({
+                id: item.id,
+                product: itemOrderDetail,
+                full_name: item.full_name,
+                phone_number: item.phone_number,
+                delivery_address: item.delivery_address,
+                total_payment: item.total_payment,
+                order_date: item.order_date,
+                payment_methods: item.payment_methods,
+                order_status: item.order_status,
+              });
+            }
+          }
+          dispatch(
+            addOrderStatistic({
+              data: list_data,
+              totalData,
+              totalSales,
+              success,
+              failed,
+              processing,
+            })
+          );
+        }
+      } catch (error) {
+        console.error(error);
+      }
+    };
+    if (memoizedUserDataOrder === 0) {
+      fetchAPI();
+    }
+  }, [dispatch, memoizedUserDataOrder]);
 
   useEffect(() => {
     const fetchAPI = async () => {

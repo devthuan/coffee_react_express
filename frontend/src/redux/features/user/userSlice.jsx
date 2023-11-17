@@ -31,6 +31,9 @@ export const userSlice = createSlice({
     addTotalData: (state, action) => {
       state.totalData = action.payload;
     },
+    initDataUser: (state, action) => {
+      state.data = action.payload;
+    },
     addUser: (state, action) => {
       state.data.push(action.payload);
     },
@@ -60,6 +63,7 @@ export const userSlice = createSlice({
 
 // Action creators are generated for each case reducer function
 export const {
+  initDataUser,
   addTotalData,
   addUser,
   removeUser,
