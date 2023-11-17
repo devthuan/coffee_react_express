@@ -1,65 +1,55 @@
-import React from "react";
-import classNames from "classnames/bind";
-import {
-  Chart as ChartJS,
-  CategoryScale,
-  LinearScale,
-  PointElement,
-  LineElement,
-  Tooltip,
-  Legend,
-} from "chart.js";
-import { Line } from "react-chartjs-2";
-import styles from "./Chart.module.scss";
-import Title from "../Title/Title";
-const cx = classNames.bind(styles);
+// LineChart.js
+import React, { useEffect, useRef } from "react";
+import Chart from "chart.js/auto";
 
 const LineChart = () => {
-  ChartJS.register(
-    CategoryScale,
-    LinearScale,
-    PointElement,
-    LineElement,
-    Title,
-    Tooltip,
-    Legend
-  );
+  const chartRef = useRef(null);
 
-  const options = {
-    responsive: true,
-    plugins: {
-      title: {
-        display: true,
+  useEffect(() => {
+    const ctx = chartRef.current.getContext("2d");
+
+    const myChart = new Chart(ctx, {
+      type: "line",
+      data: {
+        labels: [
+          "Thứ 2",
+          "Thứ 3",
+          "Thứ 4",
+          "Thứ 5",
+          "Thứ 6",
+          "Thứ 7",
+          "Chủ nhật",
+        ],
+        datasets: [
+          {
+            label: "Tổng đơn hàng theo ngày trong tuần",
+            data: [65, 59, 80, 81, 56],
+            fill: false,
+            borderColor: "rgb(75, 192, 192)",
+            tension: 0.1,
+          },
+        ],
       },
-    },
-  };
-
-  const labels = [
-    "January",
-    "February",
-    "March",
-    "April",
-    "May",
-    "June",
-    "July",
-  ];
-
-  const data = {
-    labels,
-    datasets: [
-      {
-        label: "Doanh thu",
-        data: [12, 35, 67, 50, 90, 45],
-        borderColor: "rgb(255, 99, 132)",
-        backgroundColor: "rgba(255, 99, 132, 0.5)",
+      options: {
+        scales: {
+          y: {
+            beginAtZero: true,
+          },
+        },
       },
-    ],
-  };
+    });
+
+    // Cleanup on component unmount
+    return () => {
+      myChart.destroy();
+    };
+  }, []);
+
   return (
-    <div className={cx("box__chart")}>
-      <Title className={cx("title__chart")} text="Thống kê doanh thu theo tháng" />
-      <Line data={data} options={options} />
+    <div>
+      <canvas ref={chartRef} width="400" height="200"></canvas>
     </div>
   );
 };
+
 export default LineChart;

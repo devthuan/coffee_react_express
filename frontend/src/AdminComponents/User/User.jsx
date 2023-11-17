@@ -107,6 +107,7 @@ const User = () => {
                 </tr>
                 {dataSearch && dataSearch.length > 0
                   ? dataSearch.map((search, index) => {
+
                       return (
                         <tr key={index} className={cx("group__row")}>
                           <td className={cx("item")}>{search.id}</td>
@@ -129,10 +130,19 @@ const User = () => {
                           </td>
 
                           <td className={cx("item")}>
-                            <Button
-                              className={cx("btn", "update")}
-                              text="sửa"
-                            />
+                            {search.is_active === 1 ? (
+                              <Button
+                                className={cx("btn", "delete")}
+                                onClick={() => handleBlockAccount(search.id)}
+                                text="khoá"
+                              />
+                            ) : (
+                              <Button
+                                className={cx("btn", "update")}
+                                onClick={() => handleUnlockAccount(search.id)}
+                                text="unlock"
+                              />
+                            )}
                             <Button
                               onClick={() => handleClickDelete(search.id)}
                               className={cx("btn", "delete")}

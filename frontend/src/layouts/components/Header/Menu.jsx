@@ -5,16 +5,17 @@ import Logo from "../../../assets/images/logo.png";
 import Cart from "../../../assets/images/gio-hang.png";
 import Avatar from "../../../assets/images/avatar-crycle.jpg";
 import { ToastContainer, toast } from "react-toastify";
-
+import { logout } from "../../../redux/features/user/authSlice";
 import { useState } from "react";
 import { NavLink, useLocation } from "react-router-dom";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faRightToBracket } from "@fortawesome/free-solid-svg-icons";
 
 const cx = classNames.bind(styles);
 
 const Menu = () => {
+  const dispatch = useDispatch();
   const checkLogin = useSelector((state) => state.auth.isLoggedIn);
   const permission = useSelector((state) => state.auth.user);
   const location = useLocation();
@@ -29,6 +30,7 @@ const Menu = () => {
   };
 
   const handleLogOut = () => {
+    dispatch(logout());
     localStorage.removeItem("phone_number");
     localStorage.removeItem("token");
     window.location.href = "/"; // Replace "/login" with the actual URL

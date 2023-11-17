@@ -1,35 +1,110 @@
 import { createSlice } from "@reduxjs/toolkit";
+import {
+  GetOrdersAPI,
+  GetOrdersDetailAPI,
+} from "../../../services/UseServices";
+
+// const loadState = async () => {
+//   try {
+//     const orders = await GetOrdersAPI();
+
+//     if (orders && orders.status === 200) {
+//       const data = orders.data.data;
+//       const totalData = orders.data.total;
+//       let success = 0,
+//         failed = 0,
+//         processing = 0;
+//       data && data.map((item) => {
+//         if (item.order_status === "Successful") {
+//           success += 1;
+//         } else if (item.order_status === "Failed") {
+//           failed += 1;
+//         } else if (item.order_status === "Processing") {
+//           processing += 1;
+//         }
+//       });
+//       return { data,  totalData, success, failed, processing };
+//     } else {
+//       return undefined;
+//     }
+//   } catch (error) {
+//     console.error("Có lỗi xảy ra:", error);
+//   }
+// };
+const loadState = async () => {
+  try {
+    const res = await GetOrdersAPI();
+    if (res && res.status === 200 && res.data) {
+      const data = res.data.data;
+      const totalData = res.data.total;
+      let success = 0,
+        failed = 0,
+        processing = 0;
+      let list_data = [];
+      let totalSales = 0;
+      for (const item of data) {
+        if (item.order_status === "Successful") {
+          success += 1;
+          totalSales += parseFloat(item.total_payment);
+        } else if (item.order_status === "Failed") {
+          failed += 1;
+        } else if (item.order_status === "Processing") {
+          processing += 1;
+        }
+
+        const order_id = item.id;
+        const orderDetail = await GetOrdersDetailAPI(order_id);
+        const itemOrderDetail = orderDetail.data.data;
+
+        if (orderDetail && orderDetail.data) {
+          list_data.push({
+            id: item.id,
+            product: itemOrderDetail,
+            full_name: item.full_name,
+            phone_number: item.phone_number,
+            delivery_address: item.delivery_address,
+            total_payment: item.total_payment,
+            order_date: item.order_date,
+            payment_methods: item.payment_methods,
+            order_status: item.order_status,
+          });
+        }
+      }
+
+      return {
+        data: list_data,
+        totalData,
+        totalSales,
+        success,
+        failed,
+        processing,
+      };
+    }
+  } catch (error) {
+    console.error(error);
+  }
+};
+
+const loadPersistedState = async () => {
+  return await loadState();
+};
+
+const persistedState = await loadPersistedState();
 
 const initialState = {
+  data: [],
   totalData: 0,
-  data: [
-    // {
-    //   id: 1,
-    //   product: [
-    //     {
-    //       id: 0,
-    //       name_product: "Cà phê đen",
-    //       price: 25000,
-    //       image_product: ProductIMG,
-    //       quantity: 1,
-    //     },
-    //   ],
-    //   full_name: "Trần Phước Thuận",
-    //   phone_number: "0945986661",
-    //   delivery_address: "tân phú",
-    //   totalPayment: 40000,
-    //   order_date: "14:42",
-    //   payment_methods: "Thanh toán khi nhận hàng",
-    //   order_status: "Chờ",
-    // },
-  ],
+  totalSales: 0,
+  success: 0,
+  failed: 0,
+  processing: 0,
   loading: false,
   error: null,
 };
 
 export const orderStatisticSlice = createSlice({
   name: "counter",
-  initialState,
+  initialState: persistedState || initialState,
   reducers: {
     addTotalDataOrder: (state, action) => {
       state.totalData = action.payload;
