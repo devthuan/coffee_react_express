@@ -10,10 +10,12 @@ const {
 } = require("../middlewares/auth.middleware");
 const { redis } = require("../../../config/redis.config");
 const { setDataIntoRedis } = require("../services/redis.services");
+const { SendEmailService } = require("../services/sendEmail.server");
 
 const Register = async (req, res, next) => {
   try {
-    const { full_name, phone_number, password } = req.body;
+    const { email, phone_number, password } = req.body;
+    console.log(email);
     let validationErrors = validateRegisterData(password, phone_number);
 
     if (validationErrors) {
@@ -27,11 +29,11 @@ const Register = async (req, res, next) => {
     userModel.AddUserToDatabase(
       phone_number,
       hashPass,
-      full_name,
+      email,
       is_staff,
-      1,
+      0,
       created_date,
-      (error, result) => {
+      async (error, result) => {
         if (error) {
           if (error.code === "ER_DUP_ENTRY") {
             res.status(400).json({
@@ -45,12 +47,64 @@ const Register = async (req, res, next) => {
             });
           }
         } else {
-          res.status(200).json({
-            message: "Account registration successful.",
-          });
+          const num = Math.floor(Math.random() * (999999 - 100000) + 100000);
+          const otp = num.toString();
+
+          const hashOTP = await hashPassword(otp);
+
+          setDataIntoRedis(`otp:${email}`, hashOTP, 60);
+
+          const response = await SendEmailService(email, otp);
+          if (response.messageId) {
+            res.status(200).json({
+              message: "Account registration successful.",
+            });
+          }
         }
       }
     );
+  } catch (error) {
+    console.log(error);
+    res.status(401).json({
+      error: error,
+    });
+  }
+};
+
+const ActivatingAccount = async (req, res) => {
+  try {
+    const { otp, email } = req.body;
+    const otpHashInRedis = await redis.get(`otp:${email}`);
+    console.log(otp.toString());
+    if (otpHashInRedis && otp) {
+      const compareOTP = await comparePassword(
+        otp.toString(),
+        otpHashInRedis.toString()
+      );
+
+      if (compareOTP) {
+        userModel.ActiveAccountWithEmail(email, 1, (error, result) => {
+          if (error) {
+            console.log(error);
+            res.status(500).json({
+              error: "Error query",
+            });
+          } else {
+            return res.status(200).json({
+              message: "activating account successful.",
+            });
+          }
+        });
+      } else {
+        return res.status(400).json({
+          error: "OTP is wrong !!!",
+        });
+      }
+    } else {
+      return res.status(400).json({
+        error: "missing values",
+      });
+    }
   } catch (error) {
     console.log(error);
     res.status(401).json({
@@ -270,8 +324,8 @@ module.exports = {
   refreshLogin,
   Login,
   Logout,
-
   Register,
+  ActivatingAccount,
   GetUsers,
   DeleteUsers,
   SearchUser,

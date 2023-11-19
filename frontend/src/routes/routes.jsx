@@ -17,6 +17,7 @@ import Cart from "../layouts/components/Cart/Cart";
 import Order from "../layouts/components/Order/Order";
 import Login from "../layouts/components/Form/Login";
 import Register from "../layouts/components/Form/Register";
+import Otp from "../layouts/components/Form/Otp";
 
 import Dashboard from "../AdminComponents/Dashboard/Dashboard";
 import User from "../AdminComponents/User/User";
@@ -43,6 +44,7 @@ const publicRoutes = [
 
   { path: config.routes.login, component: Login, layout: LoginLayout },
   { path: config.routes.register, component: Register, layout: LoginLayout },
+  { path: config.routes.otp, component: Otp, layout: LoginLayout },
 ];
 
 const privateRoutes = [

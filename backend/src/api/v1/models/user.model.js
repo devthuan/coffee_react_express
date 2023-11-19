@@ -8,18 +8,18 @@ const { setDataIntoRedis } = require("../services/redis.services");
 const AddUserToDatabase = (
   phone_number,
   password,
-  full_name,
+  email,
   is_staff,
   is_active,
   created_date,
   callback
 ) => {
-  let sql = `insert into Users (phone_number, password, full_name, is_staff,is_active , created_date) 
+  let sql = `insert into Users (phone_number, password, email, is_staff,is_active , created_date) 
   VALUES (?, ?, ?, ?, ?, ?) `;
 
   connection.query(
     sql,
-    [phone_number, password, full_name, is_staff, is_active, created_date],
+    [phone_number, password, email, is_staff, is_active, created_date],
     (error, result) => {
       if (error) {
         callback(error, null);
@@ -106,6 +106,19 @@ const UpdateStatusAccount = (user_id, new_status, callback) => {
   });
 };
 
+const ActiveAccountWithEmail = (email, new_status, callback) => {
+  let sql = `update Users set is_active = ? where email = ?`;
+  connection.query(sql, [new_status, email], (error, result) => {
+    if (error) {
+      return callback(error, null);
+    } else {
+      return callback(null, result);
+    }
+  });
+};
+
+
+
 module.exports = {
   AddUserToDatabase,
   Login,
@@ -114,4 +127,5 @@ module.exports = {
   DeleteUsers,
   SearchUser,
   UpdateStatusAccount,
+  ActiveAccountWithEmail,
 };

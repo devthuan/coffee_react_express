@@ -15,6 +15,8 @@ route.post("/register", UserController.Register);
 route.get("/user", projectRouteAdmin, cacheDataUsers, UserController.GetUsers);
 route.patch("/user/:id", projectRouteAdmin, UserController.DeleteUsers);
 route.patch("/status", projectRouteAdmin, UserController.UpdateStatusAccount);
+route.post("/activating-account", UserController.ActivatingAccount);
+
 route.get(
   "/search",
   projectRouteAdmin, // protected route

@@ -1,4 +1,8 @@
 import { createSlice } from "@reduxjs/toolkit";
+import {
+  GetOrdersAPI,
+  GetOrdersDetailAPI,
+} from "../../../services/UseServices";
 
 const initialState = {
   data: [

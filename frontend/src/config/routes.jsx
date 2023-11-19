@@ -4,6 +4,7 @@ const routes = {
   order: "/order",
   login: "/login",
   register: "/register",
+  otp: "/otp",
   dashboard: "/dashboard",
   userManagement: "/user-management",
   orderStatistics: "/statistics-order",

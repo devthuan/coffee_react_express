@@ -1,5 +1,7 @@
 const express = require("express");
 const ApiController = require("../controllers/api.controller");
+const SendEmailController =
+  require("../controllers/sendEmail.controller");
 const {
   verifyToken,
   projectRouteAdmin,
@@ -11,5 +13,6 @@ const route = express.Router();
 
 // route.post("/register", ApiController.Register);
 route.get("/redis", cacheMiddleware, ApiController.GetRedis);
+
 
 module.exports = route;

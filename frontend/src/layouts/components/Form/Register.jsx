@@ -8,12 +8,15 @@ import { Fragment, useState } from "react";
 import { ToastContainer, toast } from "react-toastify";
 import { RegisterAPI } from "../../../services/UseServices";
 import { validateRegisterData } from "../../../validations/validations";
+import { addInfoRegister } from "../../../redux/features/user/registerSlice";
+import { useDispatch } from "react-redux";
 const cx = classNames.bind(styles);
 
 const Register = () => {
+  const dispatch = useDispatch();
   const navigate = useNavigate();
   const GroupInput = [
-    { type: "text", label: "Họ và tên", placeholder: "Họ và tên" },
+    { type: "text", label: "Email", placeholder: "Email" },
     { type: "text", label: "Số Điện thoại", placeholder: "Số điện thoại" },
     { type: "password", label: "Mật khẩu", placeholder: "Mật khẩu" },
   ];
@@ -30,24 +33,31 @@ const Register = () => {
 
   const handleRegister = async () => {
     try {
-      const full_name = inputValues[0];
+      const email = inputValues[0];
       const phone_number = inputValues[1];
       const password = inputValues[2];
-      if (full_name && phone_number && password) {
+      if (email && phone_number && password) {
         let validationErrors = validateRegisterData(password, phone_number);
         if (validationErrors) {
           validationErrors.forEach((item) => {
             toast.error(item);
           });
         }
-        const res = await RegisterAPI(full_name, phone_number, password);
+
+        const res = await RegisterAPI(email, phone_number, password);
         if (res && res.status === 400 && res.data) {
           toast.error(res.data.error);
         }
 
         if (res && res.status === 200 && res.data) {
-          toast.success(res.data.message);
-          navigate("/login");
+          localStorage.setItem("email", JSON.stringify(email))
+          dispatch(
+            addInfoRegister({
+              email,
+              phone_number,
+            })
+          );
+          navigate("/otp");
         }
       } else {
         toast.warning("Vui lòng nhập đầy đủ thông tin !!!");

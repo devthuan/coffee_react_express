@@ -66,11 +66,22 @@ export const AddOrderDetailAPI = (order_id, products) => {
   return api.post(`order-detail`, { order_id, products });
 };
 
-export const RegisterAPI = (full_name, phone_number, password) => {
+export const RegisterAPI = (email, phone_number, password) => {
   return api.post(`register/`, {
-    full_name,
+    email,
     phone_number,
     password,
+  });
+};
+export const ActivatingAccountAPI = (otp, email) => {
+  return api.post(`activating-account`, {
+    otp,
+    email,
+  });
+};
+export const ResendOTPAPI = (email) => {
+  return api.post(`send-email`, {
+    email,
   });
 };
 
