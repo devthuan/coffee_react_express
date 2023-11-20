@@ -37,7 +37,8 @@ const Menu = () => {
   };
 
   const handleOnclickCart = () => {
-    toast.warning("You need to log in before using the service !");
+    toast.warning("Bạn cần đăng nhập trước khi vào giỏ hàng !");
+    
   };
 
   return (

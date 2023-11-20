@@ -7,6 +7,7 @@ import { format, isValid } from "date-fns";
 import Title from "../../components/Title/Title";
 import Button from "../../components/Button/Button";
 import Pagination from "../../components/Pagination/Pagination";
+import Filter from "../../components/Filter/Filter";
 import { useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { GetOrdersAPI, GetOrdersDetailAPI } from "../../services/UseServices";
@@ -27,18 +28,30 @@ const OrderStatistics = () => {
     (state) => state.orderStatistic.processing
   );
   const memoizedOrderData = useMemo(() => dataOrder, [dataOrder]);
+
+  // filter category
+  const [filteredCategory, setFilteredCategory] = useState("");
+  const initialCategories = ["Successful", "Failed", "Processing"];
+  const filteredOrders = filteredCategory
+    ? dataOrder.filter((product) => product.order_status === filteredCategory)
+    : dataOrder;
+
+  // Pagination
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-  const currentItems = dataOrder.slice(indexOfFirstItem, indexOfLastItem);
+  const currentItems = filteredOrders.slice(indexOfFirstItem, indexOfLastItem);
+
+  const handleFilterChange = (category) => {
+    setFilteredCategory(category);
+  };
 
   const handlePageChange = (newPage) => {
     setCurrentPage(newPage);
   };
 
   useEffect(() => {
-    console.log("Effect is running...");
     const fetchAPI = async () => {
       try {
         const res = await GetOrdersAPI();
@@ -139,7 +152,11 @@ const OrderStatistics = () => {
             </div>
           </div>
         </div>
-
+        <Filter
+          titleLabel={"Lọc đơn hàng theo:"}
+          categories={initialCategories}
+          onFilterChange={handleFilterChange}
+        />
         <div className={cx("box__table")}>
           {currentItems && currentItems.length > 0 ? (
             <table className={cx("table")}>

@@ -6,7 +6,8 @@ import { setStatusOrderStatistic } from "../../../redux/features/order/orderStat
 import { addItemOrder } from "../../../redux/features/order/orderSlice";
 import Title from "../../../components/Title/Title";
 import Button from "../../../components/Button/Button";
-import { useEffect, useMemo } from "react";
+import Filter from "../../../components/Filter/Filter";
+import { useEffect, useMemo, useState } from "react";
 import {
   GetOrdersByUserIdAPI,
   GetOrdersDetailAPI,
@@ -19,8 +20,17 @@ const cx = classNames.bind(stylesOrder);
 const Order = () => {
   const dispatch = useDispatch();
   const dataOrders = useSelector((state) => state.order.data);
-
   const menoizedDataOrder = useMemo(() => dataOrders, [dataOrders]);
+  
+  // Filter order by status order
+  const [filterCategory, setFilteredCategory] = useState("")
+  const initialCategories = ["Successful", "Failed", "Processing"]
+  const filteredOrders = filterCategory ? dataOrders.filter(order => order.order_status === filterCategory) : dataOrders
+
+  const handleFilterChange = (category) =>{
+    setFilteredCategory(category)
+  }
+
   let handleDelete = async (itemId) => {
     try {
       const res = await UpdateStatusOrder(itemId, "Failed");
@@ -77,9 +87,14 @@ const Order = () => {
   return (
     <div className={cx("wrapper")}>
       <div className={cx("inner")}>
-        {dataOrders && dataOrders.length > 0 ? (
+        {filteredOrders && filteredOrders.length > 0 ? (
           <>
             <Title className={cx("title")} text="Đơn hàng" />
+            <Filter
+              titleLabel={"Lọc đơn hàng theo:"}
+              categories={initialCategories}
+              onFilterChange={handleFilterChange}
+            />
             <table className={cx("table")}>
               <tbody className={cx("table__content")}>
                 <tr className={cx("table__title")}>
@@ -92,7 +107,7 @@ const Order = () => {
                   <th className={cx("table__title-item")}>Trạng thái</th>
                   <th className={cx("table__title-item")}>Thao tác</th>
                 </tr>
-                {dataOrders.map((order, index) => {
+                {filteredOrders.map((order, index) => {
                   return (
                     <tr key={index} className={cx("table__items")}>
                       <td className={cx("table__item")}>
